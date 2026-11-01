@@ -3,11 +3,21 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --subtle: #f4f4f5;
+  --muted: #5f5f68;
+  --line: #d9d9de;
+  --accent: #2f5fd0;
+  --danger: #c02626;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-subtle: var(--subtle);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -16,11 +26,16 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --subtle: #1a1a1c;
+    --muted: #a1a1aa;
+    --line: #2e2e33;
+    --accent: #4f7fec;
+    --danger: #f87171;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }

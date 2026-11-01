@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Secure Notes Website
 
-## Getting Started
+The frontend for the Secure Note-Taking API. It's a functional Next.js app: register, log in, manage notes and posts, browse users by interest, and use the admin pages.
 
-First, run the development server:
+## Setup
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`API_URL` in `.env.local` chooses the backend. To use a local API, set it to `http://127.0.0.1:8000/api/v1`. It's a server-only setting, so it isn't sent to the browser.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## How it talks to the API
 
-## Learn More
+The browser only calls this site. Next.js route handlers call the FastAPI backend from the server.
 
-To learn more about Next.js, take a look at the following resources:
+```
+Browser -> /api/auth/*          -> POST /auth/login, /auth/register
+Browser -> /api/backend/<path>  -> <API_URL>/<path>, with the JWT attached
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **The JWT stays in an `httpOnly` cookie.** Page JavaScript can't read it, so an XSS bug can't steal it.
+- **The API doesn't need CORS for this site**, because the calls come from the server.
+- **`proxy.ts` only does quick page redirects.** The API must enforce authentication, roles and note ownership on every request.
+- **Logout reloads the whole page.** Next.js keeps visited pages mounted but hidden, and the reload clears them.
+- **Stale roles:** the role shown in the navigation comes from login, like the role in the JWT. It stays the same until the next login.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Endpoint status
 
-## Deploy on Vercel
+Every list sends `?page=1&limit=10` and expects the usual response with metadata:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```json
+{
+  "success": true,
+  "message": "...",
+  "data": [],
+  "metadata": { "page": 1, "limit": 10, "total": 0, "totalPages": 0 }
+}
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+JSON fields are camelCase. A route that's missing or still a stub makes the page show a "not finished" notice, and the page starts working once the route returns this format.
+
+| Page | Method and path | Status |
+|---|---|---|
+| Register, log in | `POST /auth/register`, `POST /auth/login` | Done |
+| My notes | `POST /notes` | Done |
+| My notes | `GET /notes` returning `Note[]` | Needed |
+| My notes | `PATCH /notes/{id}` with `{ title, content }` | Needed |
+| My notes | `DELETE /notes/{id}` | Needed |
+| Admin: all notes | `GET /notes/all` returning `Note[]` | Needed |
+| Admin: users | `GET /users` returning `User[]` | Needed |
+| Admin: users | `POST /users` with `{ name, email, password, role, interests }` | Needed |
+| Admin: users | `PATCH /users/{id}` with changed fields, `password` optional | Needed |
+| Admin: users | `DELETE /users/{id}` | Needed |
+| Posts | `GET /posts` returning `Post[]` | Needed |
+| Posts | `POST /posts` with `{ title, content }` | Needed |
+| User posts | `GET /users/{id}/posts` returning `{ user: { id, name }, posts: Post[] }` | Needed |
+| Interests | `GET /users/by-interest` returning `InterestGroup[]` | Needed |
+
+The interests page sends its filter as repeated parameters, such as `?interests=music&interests=travel`. Send no filter to show every interest. In FastAPI, declare `/users/by-interest` before `/users/{id}`, or it will be matched as an ID.
+
+The data shapes are in `lib/types.ts`.
