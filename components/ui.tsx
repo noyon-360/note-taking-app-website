@@ -8,8 +8,8 @@ import type {
 
 import type { PagedList } from "@/lib/use-paged-list";
 
-const control =
-  "w-full rounded-md border border-line bg-background px-3 py-2 text-sm outline-none focus:border-accent";
+export const control =
+  "w-full rounded-lg border border-line bg-background px-3 py-2 text-sm outline-none transition-colors placeholder:text-muted hover:border-muted focus:border-accent focus:ring-2 focus:ring-accent/25";
 
 export function Button({
   variant = "primary",
@@ -19,14 +19,14 @@ export function Button({
   variant?: "primary" | "secondary" | "danger";
 }) {
   const colors = {
-    primary: "bg-accent text-white",
-    secondary: "border border-line",
-    danger: "border border-danger text-danger",
+    primary: "bg-accent text-white hover:brightness-110",
+    secondary: "border border-line hover:bg-subtle",
+    danger: "border border-danger text-danger hover:bg-danger/10",
   }[variant];
 
   return (
     <button
-      className={`rounded-md px-3 py-1.5 text-sm font-medium disabled:opacity-50 ${colors} ${className}`}
+      className={`cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-50 ${colors} ${className}`}
       {...props}
     />
   );
@@ -71,7 +71,7 @@ export function Select({
 export function ErrorText({ children }: { children: ReactNode }) {
   if (!children) return null;
   return (
-    <p role="alert" className="text-sm text-danger">
+    <p role="alert" className="rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
       {children}
     </p>
   );

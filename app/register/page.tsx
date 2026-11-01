@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 
-import { Button, Card, ErrorText, Input, PageTitle } from "@/components/ui";
+import { AuthShell } from "@/components/auth-shell";
+import { PasswordInput } from "@/components/password-input";
+import { Button, ErrorText, Input } from "@/components/ui";
 import { signIn } from "@/lib/api";
 import { splitList } from "@/lib/format";
 import { useSession } from "@/lib/use-session";
@@ -33,44 +35,51 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="mx-auto max-w-sm space-y-4 pt-10">
-      <PageTitle>Create an account</PageTitle>
-      <Card>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <Input label="Name" name="name" autoComplete="name" minLength={2} required />
-          <Input label="Email" name="email" type="email" autoComplete="email" required />
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            autoComplete="new-password"
-            minLength={6}
-            required
-          />
-          <Input
-            label="Confirm password"
-            name="confirmPassword"
-            type="password"
-            autoComplete="new-password"
-            required
-          />
-          <Input
-            label="Interests (comma separated)"
-            name="interests"
-            placeholder="music, travel"
-          />
-          <ErrorText>{error}</ErrorText>
-          <Button type="submit" disabled={busy}>
-            {busy ? "Creating account…" : "Register"}
-          </Button>
-        </form>
-      </Card>
-      <p className="text-sm text-muted">
-        Already registered?{" "}
-        <Link href="/login" className="text-accent">
-          Log in
-        </Link>
-      </p>
-    </div>
+    <AuthShell
+      title="Create an account"
+      subtitle="Sign up to start writing notes and posts."
+      footer={
+        <>
+          Already registered?{" "}
+          <Link href="/login" className="font-medium text-accent hover:underline">
+            Log in
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Input label="Name" name="name" autoComplete="name" minLength={2} required />
+        <Input
+          label="Email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+          required
+        />
+        <PasswordInput
+          label="Password"
+          name="password"
+          autoComplete="new-password"
+          minLength={6}
+          required
+        />
+        <PasswordInput
+          label="Confirm password"
+          name="confirmPassword"
+          autoComplete="new-password"
+          required
+        />
+        <Input
+          label="Interests (comma separated)"
+          name="interests"
+          placeholder="music, travel"
+        />
+        <ErrorText>{error}</ErrorText>
+        <Button type="submit" disabled={busy} className="w-full py-2.5">
+          {busy ? "Creating account…" : "Register"}
+        </Button>
+      </form>
+    </AuthShell>
   );
 }
