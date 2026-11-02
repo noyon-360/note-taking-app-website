@@ -48,10 +48,10 @@ JSON fields are camelCase. A route that's missing or still a stub makes the page
 |---|---|---|
 | Register, log in | `POST /auth/register`, `POST /auth/login` | Done |
 | My notes | `POST /notes` | Done |
-| My notes | `GET /notes` returning `Note[]` | Needed |
-| My notes | `PATCH /notes/{id}` with `{ title, content }` | Needed |
-| My notes | `DELETE /notes/{id}` | Needed |
-| Admin: all notes | `GET /notes/all` returning `Note[]` | Needed |
+| My notes | `GET /notes` returning `Note[]` | In the API spec, not deployed yet |
+| My notes | `PATCH /notes/{id}` with `{ title, content }` | Needs a request body and auth |
+| My notes | `DELETE /notes/{id}` | Needs auth |
+| Admin: all notes | `GET /admin/notes` returning `Note[]` | In the API spec, not deployed yet |
 | Admin: users | `GET /users` returning `User[]` | Needed |
 | Admin: users | `POST /users` with `{ name, email, password, role, interests }` | Needed |
 | Admin: users | `PATCH /users/{id}` with changed fields, `password` optional | Needed |

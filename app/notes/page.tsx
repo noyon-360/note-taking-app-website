@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Dialog } from "@/components/dialog";
 import { NoteForm } from "@/components/note-form";
 import { Button, Card, ErrorText, ListStatus, PageTitle, Pagination } from "@/components/ui";
 import { backend } from "@/lib/api";
@@ -62,19 +63,31 @@ function NoteItem({ note, onChanged }: { note: Note; onChanged: () => void }) {
 export default function NotesPage() {
   const list = usePagedList<Note[]>("/notes");
   const notes = list.data ?? [];
+  const [creating, setCreating] = useState(false);
 
   async function create(values: { title: string; content: string }) {
     await backend("/notes", { method: "POST", body: values });
+    setCreating(false);
+    // The API lists newest first, so the new note is at the top of page 1.
     list.setPage(1);
     list.reload();
   }
 
   return (
     <>
-      <PageTitle>My notes</PageTitle>
-      <Card>
-        <NoteForm submitLabel="Add note" onSubmit={create} />
-      </Card>
+      <div className="flex items-center justify-between gap-3">
+        <PageTitle>My notes</PageTitle>
+        <Button onClick={() => setCreating(true)}>New note</Button>
+      </div>
+      {creating && (
+        <Dialog title="New note" onClose={() => setCreating(false)}>
+          <NoteForm
+            submitLabel="Add note"
+            onSubmit={create}
+            onCancel={() => setCreating(false)}
+          />
+        </Dialog>
+      )}
       <ListStatus list={list} isEmpty={notes.length === 0} emptyText="No notes yet." />
       {notes.map((note) => (
         <NoteItem key={note.id} note={note} onChanged={list.reload} />

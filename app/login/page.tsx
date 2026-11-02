@@ -57,6 +57,7 @@ export default function LoginPage() {
           name="password"
           autoComplete="current-password"
           minLength={6}
+          maxLength={128}
           required
         />
         <ErrorText>{error}</ErrorText>

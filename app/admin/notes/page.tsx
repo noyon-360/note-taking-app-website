@@ -6,7 +6,7 @@ import type { Note } from "@/lib/types";
 import { usePagedList } from "@/lib/use-paged-list";
 
 export default function AdminNotesPage() {
-  const list = usePagedList<Note[]>("/notes/all");
+  const list = usePagedList<Note[]>("/admin/notes");
   const notes = list.data ?? [];
 
   return (

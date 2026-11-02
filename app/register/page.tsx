@@ -48,7 +48,14 @@ export default function RegisterPage() {
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="Name" name="name" autoComplete="name" minLength={2} required />
+        <Input
+          label="Name"
+          name="name"
+          autoComplete="name"
+          minLength={2}
+          maxLength={100}
+          required
+        />
         <Input
           label="Email"
           name="email"
@@ -62,12 +69,14 @@ export default function RegisterPage() {
           name="password"
           autoComplete="new-password"
           minLength={6}
+          maxLength={128}
           required
         />
         <PasswordInput
           label="Confirm password"
           name="confirmPassword"
           autoComplete="new-password"
+          maxLength={128}
           required
         />
         <Input
