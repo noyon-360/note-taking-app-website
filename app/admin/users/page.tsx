@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import type { FormEvent } from "react";
 
+import { PasswordInput } from "@/components/password-input";
 import {
   Button,
   Card,
@@ -11,7 +12,6 @@ import {
   ListStatus,
   PageTitle,
   Pagination,
-  Select,
 } from "@/components/ui";
 import { backend } from "@/lib/api";
 import { splitList } from "@/lib/format";
@@ -20,54 +20,25 @@ import { usePagedList } from "@/lib/use-paged-list";
 import { useSession } from "@/lib/use-session";
 import { useSubmit } from "@/lib/use-submit";
 
-function UserFields({ user }: { user?: User }) {
-  return (
-    <>
-      <Input label="Name" name="name" defaultValue={user?.name} minLength={2} required />
-      <Input label="Email" name="email" type="email" defaultValue={user?.email} required />
-      <Input
-        label={user ? "New password (leave empty to keep)" : "Password"}
-        name="password"
-        type="password"
-        autoComplete="new-password"
-        minLength={8}
-        required={!user}
-      />
-      <Select label="Role" name="role" defaultValue={user?.role ?? "user"}>
-        <option value="user">User</option>
-        <option value="admin">Admin</option>
-      </Select>
-      <Input
-        label="Interests (comma separated)"
-        name="interests"
-        defaultValue={user?.interests.join(", ")}
-      />
-    </>
-  );
-}
-
-function readUserForm(element: HTMLFormElement) {
-  const form = new FormData(element);
-  const password = String(form.get("password"));
-
-  return {
-    name: form.get("name"),
-    email: form.get("email"),
-    role: form.get("role"),
-    interests: splitList(form.get("interests")),
-    ...(password && { password }),
-  };
-}
-
 function CreateUser({ onCreated }: { onCreated: () => void }) {
   const { run, busy, error } = useSubmit();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const element = event.currentTarget;
+    const form = new FormData(element);
 
     run(async () => {
-      await backend("/users", { method: "POST", body: readUserForm(element) });
+      await backend("/admin/user", {
+        method: "POST",
+        body: {
+          name: form.get("name"),
+          email: form.get("email"),
+          password: form.get("password"),
+          confirmPassword: form.get("confirmPassword"),
+          interests: splitList(form.get("interests")),
+        },
+      });
       element.reset();
       onCreated();
     });
@@ -77,7 +48,24 @@ function CreateUser({ onCreated }: { onCreated: () => void }) {
     <Card>
       <h2 className="font-semibold">Add user</h2>
       <form onSubmit={handleSubmit} className="space-y-3">
-        <UserFields />
+        <Input label="Name" name="name" minLength={2} maxLength={100} required />
+        <Input label="Email" name="email" type="email" required />
+        <PasswordInput
+          label="Password"
+          name="password"
+          autoComplete="new-password"
+          minLength={6}
+          maxLength={128}
+          required
+        />
+        <PasswordInput
+          label="Confirm password"
+          name="confirmPassword"
+          autoComplete="new-password"
+          maxLength={128}
+          required
+        />
+        <Input label="Interests (comma separated)" name="interests" />
         <ErrorText>{error}</ErrorText>
         <Button type="submit" disabled={busy}>
           Add user
@@ -89,73 +77,57 @@ function CreateUser({ onCreated }: { onCreated: () => void }) {
 
 function UserItem({ user, onChanged }: { user: User; onChanged: () => void }) {
   const { user: currentUser } = useSession();
-  const [editing, setEditing] = useState(false);
   const { run, busy, error } = useSubmit();
+  const nextRole = user.role === "admin" ? "user" : "admin";
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const element = event.currentTarget;
-
+  function changeRole() {
+    if (!window.confirm(`Change ${user.name}'s role to ${nextRole}?`)) return;
     run(async () => {
-      await backend(`/users/${user.id}`, { method: "PATCH", body: readUserForm(element) });
-      setEditing(false);
+      await backend(`/admin/user/${user.id}/role`, {
+        method: "PATCH",
+        body: { role: nextRole },
+      });
       onChanged();
     });
   }
 
   function remove() {
-    if (!window.confirm(`Delete ${user.name}?`)) return;
+    if (!window.confirm(`Delete ${user.name} and all their content?`)) return;
     run(async () => {
-      await backend(`/users/${user.id}`, { method: "DELETE" });
+      await backend(`/admin/user/${user.id}`, { method: "DELETE" });
       onChanged();
     });
-  }
-
-  if (editing) {
-    return (
-      <Card>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <UserFields user={user} />
-          <ErrorText>{error}</ErrorText>
-          <div className="flex gap-2">
-            <Button type="submit" disabled={busy}>
-              Save
-            </Button>
-            <Button type="button" variant="secondary" onClick={() => setEditing(false)}>
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </Card>
-    );
   }
 
   return (
     <Card>
       <h2 className="font-semibold">
-        {user.name} <span className="text-xs font-normal text-muted">{user.role}</span>
+        <Link href={`/admin/users/${user.id}`} className="text-accent">
+          {user.name}
+        </Link>{" "}
+        <span className="text-xs font-normal text-muted">{user.role}</span>
       </h2>
       <p className="text-sm">{user.email}</p>
       {user.interests.length > 0 && (
         <p className="text-sm text-muted">{user.interests.join(", ")}</p>
       )}
       <ErrorText>{error}</ErrorText>
-      <div className="flex gap-2">
-        <Button variant="secondary" onClick={() => setEditing(true)}>
-          Edit
-        </Button>
-        {user.id !== currentUser?.id && (
+      {user.id !== currentUser?.id && (
+        <div className="flex gap-2">
+          <Button variant="secondary" disabled={busy} onClick={changeRole}>
+            Make {nextRole}
+          </Button>
           <Button variant="danger" disabled={busy} onClick={remove}>
             Delete
           </Button>
-        )}
-      </div>
+        </div>
+      )}
     </Card>
   );
 }
 
 export default function AdminUsersPage() {
-  const list = usePagedList<User[]>("/users");
+  const list = usePagedList<User[]>("/admin/users");
   const users = list.data ?? [];
 
   return (

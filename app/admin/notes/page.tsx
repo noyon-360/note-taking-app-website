@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { Card, ListStatus, PageTitle, Pagination } from "@/components/ui";
 import { formatDate } from "@/lib/format";
 import type { Note } from "@/lib/types";
@@ -18,7 +20,11 @@ export default function AdminNotesPage() {
           <h2 className="font-semibold">{note.title}</h2>
           <p className="whitespace-pre-wrap text-sm">{note.content}</p>
           <p className="text-xs text-muted">
-            Owner {note.ownerId} · Updated {formatDate(note.updatedAt)}
+            Owner{" "}
+            <Link href={`/admin/users/${note.ownerId}`} className="text-accent">
+              {note.ownerId}
+            </Link>{" "}
+            · Updated {formatDate(note.updatedAt)}
           </p>
         </Card>
       ))}

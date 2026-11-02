@@ -2,7 +2,6 @@ import type {
   ButtonHTMLAttributes,
   InputHTMLAttributes,
   ReactNode,
-  SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from "react";
 
@@ -49,21 +48,6 @@ export function Textarea({
     <label className="block space-y-1 text-sm">
       <span className="font-medium">{label}</span>
       <textarea className={control} rows={4} {...props} />
-    </label>
-  );
-}
-
-export function Select({
-  label,
-  children,
-  ...props
-}: SelectHTMLAttributes<HTMLSelectElement> & { label: string }) {
-  return (
-    <label className="block space-y-1 text-sm">
-      <span className="font-medium">{label}</span>
-      <select className={control} {...props}>
-        {children}
-      </select>
     </label>
   );
 }

@@ -64,3 +64,17 @@ export async function signIn(action: "login" | "register", body: Body) {
   const { data } = await send<User>(`/api/auth/${action}`, "POST", body);
   return data;
 }
+
+// Rewrites the session cookie from the API after the user's details change.
+export async function refreshSession() {
+  const { data } = await send<User>("/api/auth/session", "POST");
+  return data;
+}
+
+export async function logout() {
+  await fetch("/api/auth/logout", { method: "POST" });
+  // A full reload also drops previous pages kept in memory, so the next
+  // person on this browser can't see the last user's notes.
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+  window.location.assign("/login");
+}

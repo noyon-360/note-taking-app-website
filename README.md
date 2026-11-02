@@ -19,7 +19,7 @@ Open http://localhost:3000.
 The browser only calls this site. Next.js route handlers call the FastAPI backend from the server.
 
 ```
-Browser -> /api/auth/*          -> POST /auth/login, /auth/register
+Browser -> /api/auth/*          -> POST /auth/login, /auth/register, GET /users
 Browser -> /api/backend/<path>  -> <API_URL>/<path>, with the JWT attached
 ```
 
@@ -27,7 +27,7 @@ Browser -> /api/backend/<path>  -> <API_URL>/<path>, with the JWT attached
 - **The API doesn't need CORS for this site**, because the calls come from the server.
 - **`proxy.ts` only does quick page redirects.** The API must enforce authentication, roles and note ownership on every request.
 - **Logout reloads the whole page.** Next.js keeps visited pages mounted but hidden, and the reload clears them.
-- **Stale roles:** the role shown in the navigation comes from login, like the role in the JWT. It stays the same until the next login.
+- **Stale roles:** the role shown in the navigation comes from login, like the role in the JWT. It stays the same until the next login, or until the user saves their profile, which rewrites the session cookie from `GET /users`.
 
 ## Endpoint status
 
@@ -47,20 +47,23 @@ JSON fields are camelCase. A route that's missing or still a stub makes the page
 | Page | Method and path | Status |
 |---|---|---|
 | Register, log in | `POST /auth/register`, `POST /auth/login` | Done |
-| My notes | `POST /notes` | Done |
-| My notes | `GET /notes` returning `Note[]` | In the API spec, not deployed yet |
-| My notes | `PATCH /notes/{id}` with `{ title, content }` | Needs a request body and auth |
-| My notes | `DELETE /notes/{id}` | Needs auth |
-| Admin: all notes | `GET /admin/notes` returning `Note[]` | In the API spec, not deployed yet |
-| Admin: users | `GET /users` returning `User[]` | Needed |
-| Admin: users | `POST /users` with `{ name, email, password, role, interests }` | Needed |
-| Admin: users | `PATCH /users/{id}` with changed fields, `password` optional | Needed |
-| Admin: users | `DELETE /users/{id}` | Needed |
-| Posts | `GET /posts` returning `Post[]` | Needed |
-| Posts | `POST /posts` with `{ title, content }` | Needed |
-| User posts | `GET /users/{id}/posts` returning `{ user: { id, name }, posts: Post[] }` | Needed |
-| Interests | `GET /users/by-interest` returning `InterestGroup[]` | Needed |
+| My notes | `GET /notes`, `POST /notes` | Done |
+| My notes | `PATCH /notes/{id}`, `DELETE /notes/{id}` | Done |
+| Profile | `GET /users`, `PATCH /users` with `{ name, email, interests }` | Done |
+| Profile | `DELETE /users` | Done |
+| Admin: all notes | `GET /admin/notes` returning `Note[]` | Done |
+| Admin: users | `GET /admin/users` returning `User[]` | Done |
+| Admin: users | `GET /admin/users/{id}` | Done |
+| Admin: users | `POST /admin/user` with `{ name, email, password, confirmPassword, interests }` | Done |
+| Admin: users | `PATCH /admin/user/{id}/role` with `{ role }` | Done |
+| Admin: users | `DELETE /admin/user/{id}` | Done |
+| Posts | `GET /posts` returning `Post[]` | Not in the API |
+| Posts | `POST /posts` with `{ title, content }` | Not in the API |
+| User posts | `GET /users/{id}/posts` returning `{ user: { id, name }, posts: Post[] }` | Not in the API |
+| Interests | `GET /users/by-interest` returning `InterestGroup[]` | Not in the API |
 
-The interests page sends its filter as repeated parameters, such as `?interests=music&interests=travel`. Send no filter to show every interest. In FastAPI, declare `/users/by-interest` before `/users/{id}`, or it will be matched as an ID.
+The interests page sends its filter as repeated parameters, such as `?interests=music&interests=travel`. Send no filter to show every interest.
+
+The API has no route for changing a password, or for an admin to edit another user's name, email or interests, so the site doesn't offer them. New users are always created with the `user` role, and admins can't delete their own account.
 
 The data shapes are in `lib/types.ts`.

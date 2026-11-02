@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui";
+import { logout } from "@/lib/api";
 import { useSession } from "@/lib/use-session";
 
 const LINKS = [
@@ -25,14 +26,6 @@ export function Nav() {
 
   const links = user.role === "admin" ? [...LINKS, ...ADMIN_LINKS] : LINKS;
 
-  async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    // A full reload also drops previous pages kept in memory, so the next
-    // person on this browser can't see the last user's notes.
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.assign("/login");
-  }
-
   return (
     <header className="border-b border-line">
       <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 text-sm">
@@ -46,7 +39,13 @@ export function Nav() {
             {label}
           </Link>
         ))}
-        <span className="ml-auto text-muted">{user.name}</span>
+        <Link
+          href="/profile"
+          aria-current={pathname === "/profile" ? "page" : undefined}
+          className={`ml-auto ${pathname === "/profile" ? "font-semibold" : "text-muted"}`}
+        >
+          {user.name}
+        </Link>
         <Button variant="secondary" onClick={logout}>
           Log out
         </Button>
