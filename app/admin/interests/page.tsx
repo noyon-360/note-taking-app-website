@@ -12,7 +12,7 @@ import { usePagedList } from "@/lib/use-paged-list";
 export default function InterestsPage() {
   const [interests, setInterests] = useState<string[]>([]);
   const query = interests.map((item) => `interests=${encodeURIComponent(item)}`).join("&");
-  const list = usePagedList<InterestGroup[]>(`/users/by-interest${query && `?${query}`}`);
+  const list = usePagedList<InterestGroup[]>(`/admin/grouped_by_interests${query && `?${query}`}`);
   const groups = list.data ?? [];
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -37,8 +37,13 @@ export default function InterestsPage() {
       {groups.map((group) => (
         <Card key={group.interest}>
           <h2 className="font-semibold">
-            {group.interest} ({group.count})
+            {group.interest} ({group.userCount})
           </h2>
+          {group.users.length < group.userCount && (
+            <p className="text-xs text-muted">
+              Showing the first {group.users.length} users.
+            </p>
+          )}
           <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
             {group.users.map((user) => (
               <li key={user.id}>

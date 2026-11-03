@@ -1,6 +1,6 @@
 # Secure Notes Website
 
-The frontend for the Secure Note-Taking API. It's a functional Next.js app: register, log in, manage notes and posts, browse users by interest, and use the admin pages.
+The frontend for the Secure Note-Taking API. It's a functional Next.js app: register, log in, manage notes and posts, and use the admin pages, including users grouped by interest.
 
 ## Setup
 
@@ -60,10 +60,10 @@ JSON fields are camelCase. A route that's missing or still a stub makes the page
 | Posts | `GET /posts` returning `Post[]` | Done |
 | Posts | `POST /posts` with `{ title, content }` | Done |
 | Post | `GET /posts/{id}` returning `Post` | Done |
-| User posts | `GET /users/{id}/posts` returning `{ user: { id, name }, posts: Post[] }` | Not in the API |
-| Interests | `GET /users/by-interest` returning `InterestGroup[]` | Not in the API |
+| User posts | `GET /users/{id}/posts` returning `{ user: { id, name }, posts: Post[] }` | Done |
+| Admin: interests | `GET /admin/grouped_by_interests` returning `InterestGroup[]` | Done |
 
-The interests page sends its filter as repeated parameters, such as `?interests=music&interests=travel`. Send no filter to show every interest.
+The admin interests page sends its filter as repeated parameters, such as `?interests=music&interests=travel`. Send no filter to show every interest. The API lists at most `usersPerGroup` (default 50) users in each group, while `userCount` is the full count.
 
 The API has no route for changing a password, or for an admin to edit another user's name, email or interests, so the site doesn't offer them. New users are always created with the `user` role, and admins can't delete their own account.
 

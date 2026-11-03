@@ -10,12 +10,12 @@ import { useSession } from "@/lib/use-session";
 const LINKS = [
   { href: "/notes", label: "My notes" },
   { href: "/posts", label: "Posts" },
-  { href: "/interests", label: "Interests" },
 ];
 
 const ADMIN_LINKS = [
   { href: "/admin/users", label: "Users" },
   { href: "/admin/notes", label: "All notes" },
+  { href: "/admin/interests", label: "Interests" },
 ];
 
 export function Nav() {

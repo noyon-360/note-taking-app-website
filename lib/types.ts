@@ -27,7 +27,7 @@ export type Post = {
 
 export type InterestGroup = {
   interest: string;
-  count: number;
+  userCount: number;
   users: Pick<User, "id" | "name">[];
 };
 
