@@ -14,7 +14,7 @@ export function UserPosts({ userId }: { userId: string }) {
       <PageTitle>{list.data ? `Posts by ${list.data.user.name}` : "User posts"}</PageTitle>
       <ListStatus list={list} isEmpty={posts.length === 0} emptyText="This user has no posts." />
       {posts.map((post) => (
-        <PostItem key={post.id} post={post} />
+        <PostItem key={post.id} post={post} linked />
       ))}
       <Pagination list={list} />
     </>

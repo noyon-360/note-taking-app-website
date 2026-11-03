@@ -57,8 +57,9 @@ JSON fields are camelCase. A route that's missing or still a stub makes the page
 | Admin: users | `POST /admin/user` with `{ name, email, password, confirmPassword, interests }` | Done |
 | Admin: users | `PATCH /admin/user/{id}/role` with `{ role }` | Done |
 | Admin: users | `DELETE /admin/user/{id}` | Done |
-| Posts | `GET /posts` returning `Post[]` | Not in the API |
-| Posts | `POST /posts` with `{ title, content }` | Not in the API |
+| Posts | `GET /posts` returning `Post[]` | Done |
+| Posts | `POST /posts` with `{ title, content }` | Done |
+| Post | `GET /posts/{id}` returning `Post` | Done |
 | User posts | `GET /users/{id}/posts` returning `{ user: { id, name }, posts: Post[] }` | Not in the API |
 | Interests | `GET /users/by-interest` returning `InterestGroup[]` | Not in the API |
 
